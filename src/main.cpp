@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <netdb.h>	//hostent
 
 void print_help(char *prog) {
     printf("Usage: %s  -r <file> -s <ip|hostname> [-l] [-h]\n\n", prog);
@@ -47,8 +48,16 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    //check if is IP or HOSTAME valid
-    
+    struct hostent *pear;
+
+    if (!listen) {
+        //check if is IP or HOSTAME valid
+        if (!addresses::valid_ipv4(send_addr)) {
+            pear = gethostbyname(send_addr);
+        } else {
+            
+        }
+    }
 
 
     exit(EXIT_SUCCESS);
