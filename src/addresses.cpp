@@ -1,56 +1,39 @@
+#include "addresses.h"
+
 namespace addresses {
+    addr_t get(char *hostname) {
+        addr_t hints;
+        addr_t output;
 
-    bool valid_ipv4(char *ipAddress) {
-        struct sockaddr_in sa;
-        int result = inet_pton(AF_INET, ipAddress, &(sa.sin_addr));
-        return result != 0;
-    }
+        memset(&hints, 0, sizeof(addr_t));
+        hints.ai_family  = AF_UNSPEC;
+        output.ai_family = AF_UNSPEC;
 
-    bool valid_ipv6(char *ipAddress) {
-        
-    }
+        // get addr info
+        addr_t *res;
+        int     ret = getaddrinfo(hostname, NULL, &hints, &res);
 
-    addr hostname_2_ip(char *hostname) {
-        addr output;
-        output.type = NOTSET_IP_TYPE;
-
-        struct addrinfo hints, *res, *result;
-        int errcode;
-        char addrstr[100];
-        void *ptr;
-        
-        memset (&hints, 0, sizeof (hints));
-        hints.ai_family   = PF_UNSPEC;
-        hints.ai_socktype = SOCK_STREAM;
-        hints.ai_flags   |= AI_CANONNAME;
-        
-        errcode = getaddrinfo (host, NULL, &hints, &result);
-        if (errcode != 0) {
+        if (ret != 0) {
+            // fail to get HOST
+            D_PRINT("Fail resolve addresses\n");
             return output;
         }
+
+        output = *res;
         
-        res = result;
-        
-        while (res) {
-            inet_ntop (res->ai_family, res->ai_addr->sa_data, addrstr, 100);
-            
-            switch (res->ai_family) {
-                case AF_INET:
-                    ptr = &((struct sockaddr_in *) res->ai_addr)->sin_addr;
-                    break;
-                case AF_INET6:
-                    ptr = &((struct sockaddr_in6 *) res->ai_addr)->sin6_addr;
-                    break;
+        #ifdef DEBUG
+
+            char host[256];
+            for (addr_t *tmp = res; tmp != NULL; tmp = tmp->ai_next) {
+                getnameinfo(tmp->ai_addr, tmp->ai_addrlen, host, sizeof(host), NULL, 0, NI_NUMERICHOST);
+                D_PRINT("%s", host);
             }
-        
-            inet_ntop (res->ai_family, ptr, addrstr, 100);
-            printf ("IPv%d address: %s (%s)\n", res->ai_family == PF_INET6 ? 6 : 4,
-                addrstr, res->ai_canonname);
-                res = res->ai_next;
-        }
-        
-        freeaddrinfo(result);
+
+        #endif
+
+
+        freeaddrinfo(res);
+
         return output;
     }
-
 }

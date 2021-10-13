@@ -1,7 +1,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <netdb.h>	//hostent
+#include "addresses.h"
+#include "ping.h"
 
 void print_help(char *prog) {
     printf("Usage: %s  -r <file> -s <ip|hostname> [-l] [-h]\n\n", prog);
@@ -48,17 +49,20 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    struct hostent *pear;
+    auto address = addresses::get(send_addr);
 
-    if (!listen) {
-        //check if is IP or HOSTAME valid
-        if (!addresses::valid_ipv4(send_addr)) {
-            pear = gethostbyname(send_addr);
-        } else {
-            
-        }
+    if (address.ai_family == AF_UNSPEC) {
+        fprintf(stderr, "cant resolve IP address\n");
+        exit(EXIT_FAILURE);
     }
 
+    #ifdef DEBUG
+        char host_debug[256];
+        getnameinfo(address.ai_addr, address.ai_addrlen, host_debug, sizeof(host_debug), NULL, 0, NI_NUMERICHOST);
+        D_PRINT("used address: %s", host_debug);
+    #endif
+
+    ping::send(address, "hello", 5);
 
     exit(EXIT_SUCCESS);
 }

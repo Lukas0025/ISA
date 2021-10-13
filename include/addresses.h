@@ -1,15 +1,14 @@
-#include <arpa/inet.h>
+#pragma once
 
-#define NOTSET_IP_TYPE 0
-#define IPV4_TYPE 4
-#define IPV6_TYPE 6
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <string.h>
+#include "debug.h"
 
 namespace addresses {
-    typedef struct {
-        uint8_t type;
-        struct in_addr v4;
-        struct in6_addr v6;
-    } addr_t;
+    typedef struct addrinfo addr_t;
 
-    bool valid_ipv4(char *ipAddress);
+    addr_t get(char *hostname);
 }
