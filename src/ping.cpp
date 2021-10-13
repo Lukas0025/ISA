@@ -14,6 +14,8 @@ namespace ping {
                 
             case AF_INET6:
                 D_PRINT("using IPv6");
+                sock = v6sock();
+                break;
                 //sockaddr_in6 *sin = reinterpret_cast<sockaddr_in6*>(&addr);
                 //inet_ntop(AF_INET6, &sin->sin6_addr, ip, INET6_ADDRSTRLEN);
                 //(struct sockaddr_in6 *) res->ai_addr)->sin6_addr
@@ -50,7 +52,6 @@ namespace ping {
 		}
 
         //todo: check packet
-        
         return true;
 
     }
@@ -59,6 +60,43 @@ namespace ping {
 
     int v4sock() {
         int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP);
+
+        const int ttl_val=64;
+        
+        // set socket options at ip to TTL and value to 64,
+        // change to what you want by setting ttl_val
+        if (setsockopt(sock, SOL_IP, IP_TTL, &ttl_val, sizeof(ttl_val)) != 0) {
+            D_PRINT("Fail to set socket TTL");
+            return -1;
+        }
+
+        D_PRINT("socket TTL is set");
+
+        struct timeval tv_out;
+        tv_out.tv_sec = RECV_TIMEOUT;
+        tv_out.tv_usec = 0;
+
+        // setting timeout of recv setting
+        if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv_out, sizeof tv_out) != 0) {
+            D_PRINT("Fail to set socket TIMEOUT");
+            return -1;
+        }
+
+        D_PRINT("socket TIMEOUT is set");
+
+        return sock;
+    }
+
+/*
+	icmph = (struct icmp6_hdr *)_icmph;
+	icmph->icmp6_type = ICMP6_ECHO_REQUEST;
+	icmph->icmp6_code = 0;
+	icmph->icmp6_cksum = 0;
+	icmph->icmp6_seq = htons(ntransmitted+1);
+	icmph->icmp6_id = ident;
+*/
+    int v6sock() {
+        int sock = socket(AF_INET6, SOCK_DGRAM, IPPROTO_ICMPV6);
 
         const int ttl_val=64;
         

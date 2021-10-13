@@ -19,7 +19,8 @@
 
 // Define the Packet Constants
 // ping packet size
-#define PING_PACKET_SIZE 64
+#define	MAXPACKET   64
+//#define	MAXPACKET	128000
 
 // Automatic port number
 #define PORT_NO 0
@@ -34,10 +35,16 @@
 namespace ping {
     typedef struct {
         struct icmphdr hdr;
-        char msg[PING_PACKET_SIZE - sizeof(struct icmphdr)];
-    } packet_t;
+        char msg[MAXPACKET - sizeof(struct icmphdr)];
+    } packet4_t;
+
+    typedef struct {
+        struct icmp6_hdr hdr;
+        char msg[MAXPACKET - sizeof(struct icmphdr)];
+    } packet6_t;
 
     void send(addresses::addr_t addr, char* data, unsigned len);
     bool send_packet(int sock, struct sockaddr* addr, char *data, unsigned sequence);
     int v4sock();
+    int v6sock();
 }
