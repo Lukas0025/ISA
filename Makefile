@@ -4,7 +4,7 @@ build:
 	$(CXX) src/* -I include/ -o secret
 
 debug:
-	$(CXX) src/* -I include/ -D DEBUG -o secret-debug
+	$(CXX) src/* -I include/ -D DEBUG -g -o secret-debug
 
 install: build
 	cp secret /usr/local/bin

@@ -62,7 +62,21 @@ int main(int argc, char *argv[]) {
         D_PRINT("used address: %s", host_debug);
     #endif
 
-    ping::send(address, "hello", 5);
+    auto ping_cl = ping::open(address);
+
+    ping_cl->send("helloping_cl->send(hello, 5, 0);", 5, 0);
+    ping_cl->send("hello", 5, 0);
+    ping_cl->send("hello", 5, 0);
+    ping_cl->send("hello", 5, 0);
+    ping_cl->send("hello", 5, 0);
+    ping_cl->send("hello", 5, 0);
+    ping_cl->send("hello", 5, 0);
+    ping_cl->send("hello", 5, 0);
+    ping_cl->send("hello", 5, 0);
+    ping_cl->send("hello", 5, 0);
+    ping_cl->send("hello", 5, 0);
+    ping_cl->send("hello", 5, 0);
+    ping_cl->send("hello", 5, 0);
 
     exit(EXIT_SUCCESS);
 }

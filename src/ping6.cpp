@@ -1,12 +1,13 @@
-#include "ping4.h"
+#include "ping6.h"
 #include <errno.h>
-
 
 namespace ping {
 
-    ping4_client::ping4_client(addresses::addr_t addr) {
+    ping6_client::ping6_client(addresses::addr_t addr) {
         this->addr = addr.ai_addr;
-        this->sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP);
+        this->sock = socket(AF_INET6, SOCK_DGRAM, IPPROTO_ICMPV6);
+
+        D_PRINT("Created socket %i", this->sock);
 
         const int ttl_val=64;
         
@@ -30,31 +31,32 @@ namespace ping {
         D_PRINT("socket TIMEOUT is set");
     }
 
-    icmphdr* ping4_client::create_packet(char *data, unsigned data_len) {
-        auto packet = (char*) malloc(sizeof(icmphdr) + data_len);
+    icmp6_hdr* ping6_client::create_packet(char *data, unsigned data_len) {
+        auto packet = (char*) malloc(sizeof(icmp6_hdr) + data_len);
         
         //fill with zeros
         bzero(packet, this->packet_size(data_len));
 
         //copy data
-        memcpy(packet + sizeof(icmphdr), data, data_len);
+        memcpy(packet + sizeof(icmp6_hdr), data, data_len);
         
-        return (icmphdr*) packet;
+        return (icmp6_hdr*) packet;
     }
 
-    unsigned ping4_client::packet_size(unsigned data_len) {
-        return sizeof(icmphdr) + data_len;
+    unsigned ping6_client::packet_size(unsigned data_len) {
+        return sizeof(icmp6_hdr) + data_len;
     }
 
-    bool ping4_client::send(char *data, unsigned data_len, unsigned sequence) {
+    bool ping6_client::send(char *data, unsigned data_len, unsigned sequence) {
         auto packet = this->create_packet(data, data_len);
         
         //set packet headers
-        packet->type             = ICMP_ECHO;
-        packet->un.echo.sequence = sequence;
+        packet->icmp6_type = ICMP6_ECHO_REQUEST;
+        packet->icmp6_code = 0;
+        packet->icmp6_seq  = sequence;
 
         //send packet
-        if (sendto(this->sock, packet, this->packet_size(data_len), 0, this->addr, sizeof(*this->addr)) <= 0) {
+        if (sendto(this->sock, packet, this->packet_size(data_len), 0, this->addr, sizeof(struct sockaddr_in6)) <= 0) {
             D_PRINT("Fail to send packet %i, %s", errno, strerror(errno));
             return false;
         }
