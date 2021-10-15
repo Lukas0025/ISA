@@ -13,5 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Install pcap
+      run: sudo apt-get install -y libpcap-dev
     - name: make
-      run: apt install libpcap-dev && make
+      run: make
