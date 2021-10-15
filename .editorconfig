@@ -9,4 +9,11 @@ indent_size = 4
 end_of_line = lf
 charset = utf-8
 trim_trailing_whitespace = false
-insert_final_newline = false
+insert_final_newline = falseuint16_t
+
+[Makefile]
+indent_style = tab
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = false
+insert_final_newline = falseuint16_t
