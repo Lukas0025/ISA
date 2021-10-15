@@ -77,19 +77,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    ping_cl->send("helloping_cl->send(hello, 5, 0);", 5, 0);
-    ping_cl->send("hello", 5, 0);
-    ping_cl->send("hello", 5, 0);
-    ping_cl->send("hello", 5, 0);
-    ping_cl->send("hello", 5, 0);
-    ping_cl->send("hello", 5, 0);
-    ping_cl->send("hello", 5, 0);
-    ping_cl->send("hello", 5, 0);
-    ping_cl->send("hello", 5, 0);
-    ping_cl->send("hello", 5, 0);
-    ping_cl->send("hello", 5, 0);
-    ping_cl->send("hello", 5, 0);
-    ping_cl->send("hello", 5, 0);
+    ping::send_string(ping_cl, "Lorem ipsum dolor sit amet, consectetur adipiscing elit blandit. ", 64);
 
     exit(EXIT_SUCCESS);
 }

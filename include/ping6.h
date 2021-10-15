@@ -49,6 +49,12 @@ namespace ping {
              */
             bool send(char *data, unsigned data_len, unsigned sequence);
 
+            /**
+             * Get maximal size of data in packet
+             * @return unsigned max data size [B]
+             */
+            unsigned max_data_len();
+
         private:
 
             /**

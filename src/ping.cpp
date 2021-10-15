@@ -32,4 +32,21 @@ namespace ping {
         return NULL; //dump interface object
     }
 
+    bool send_string(ping_client* ping_cl, char *data, unsigned data_len) {
+        
+        unsigned full_blocks_count = data_len / ping_cl->max_data_len();
+
+        for (unsigned i = 0; i < full_blocks_count; i++) {
+            ping_cl->send(data + i * ping_cl->max_data_len(), ping_cl->max_data_len(), i);
+        }
+
+        //not full block
+        if (data_len % ping_cl->max_data_len()) {
+            ping_cl->send(data + full_blocks_count * ping_cl->max_data_len(), data_len % ping_cl->max_data_len(), full_blocks_count);
+        }
+
+        return true;
+
+    }
+
 }

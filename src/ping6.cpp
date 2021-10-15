@@ -86,4 +86,8 @@ namespace ping {
         //todo: check packet
         return true;
     }
+
+    unsigned ping6_client::max_data_len() {
+        return MAXPACKET - sizeof(icmp6_hdr);
+    }
 }

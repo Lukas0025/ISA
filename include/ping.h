@@ -45,6 +45,12 @@ namespace ping {
              * @return bool, true if send, false if not send
              */
             virtual bool send(char *data, unsigned data_len, unsigned sequence) = 0;
+
+            /**
+             * Get maximal size of data in packet
+             * @return unsigned max data size [B]
+             */
+            virtual unsigned max_data_len() = 0;
     };
 
     /**
@@ -54,4 +60,13 @@ namespace ping {
      * @try runtime_error if fail
      */
     ping_client* open(addresses::addr_t addr);
+
+    /**
+     * Send string using ping
+     * @param ping_cl  pointer to ping client
+     * @param data     pointer to data to send
+     * @param data_len length of data to send
+     * @return bool if send is ok or not
+     */
+    bool send_string(ping_client* ping_cl, char *data, unsigned data_len);
 }

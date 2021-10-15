@@ -1,10 +1,10 @@
 CXX = g++
 
 build:
-	$(CXX) src/* -I include/ -o secret
+	$(CXX) src/* -I include/ -lpcap -o secret
 
 debug:
-	$(CXX) src/* -I include/ -D DEBUG -g -o secret-debug
+	$(CXX) src/* -I include/ -D DEBUG -lpcap -g -o secret-debug
 
 install: build
 	cp secret /usr/local/bin
