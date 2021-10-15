@@ -77,7 +77,10 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    ping_cl->send_string("Lorem ipsum dolor sit amet, consectetur adipiscing elit blandit. ", 64);
+    auto fp = fopen(send_file, "r");
+
+    ping_cl->send_file(fp);
+    //ping_cl->send_string("Lorem ipsum dolor sit amet, consectetur adipiscing elit blandit. ", 64);
 
     exit(EXIT_SUCCESS);
 }

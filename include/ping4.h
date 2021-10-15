@@ -47,7 +47,7 @@ namespace ping {
              * @param sequence  id of ping packet
              * @return bool, true if send, false if not send
              */
-            bool send(char *data, unsigned data_len, unsigned sequence);
+            bool send(char *data, unsigned data_len, uint16_t sequence);
 
             /**
              * Get maximal size of data in packet

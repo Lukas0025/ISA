@@ -60,7 +60,7 @@ namespace ping {
         return sizeof(icmp6_hdr) + data_len;
     }
 
-    bool ping6_client::send(char *data, unsigned data_len, unsigned sequence) {
+    bool ping6_client::send(char *data, unsigned data_len, uint16_t sequence) {
         auto packet = this->create_packet(data, data_len);
         
         //set packet headers

@@ -58,7 +58,7 @@ namespace ping {
         return sizeof(icmphdr) + data_len;
     }
 
-    bool ping4_client::send(char *data, unsigned data_len, unsigned sequence) {
+    bool ping4_client::send(char *data, unsigned data_len, uint16_t sequence) {
         auto packet = this->create_packet(data, data_len);
         
         //set packet headers

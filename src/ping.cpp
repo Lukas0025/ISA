@@ -49,6 +49,29 @@ namespace ping {
 
     }
 
-    
+    bool ping_client::send_file(FILE *fp) {
+        if (fp == NULL) {
+            return false;
+        }
+
+        char buff[MAXPACKET];
+        uint16_t id = 0;
+
+        size_t readed;
+        do {
+            readed = fread(buff, sizeof(char), this->max_data_len(), fp);
+                
+            if (ferror( fp ) != 0) {
+                D_PRINT("Error reading file");
+                return false;
+            }
+
+            this->send(buff, readed, id);
+
+            id++;
+            
+        } while(readed != 0);
+         
+    }
 
 }
