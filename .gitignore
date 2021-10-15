@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# complied outputs
+secret
+secret-debug
