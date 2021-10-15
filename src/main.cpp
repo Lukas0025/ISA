@@ -1,3 +1,10 @@
+/**
+ * Project: ICMP encrypted file transfer - ISA BUT FIT 2021
+ * main project file
+ * @author Lukáš Plevač <xpleva07> (BUT FIT)
+ * @date 15.10.2021
+ */
+
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -62,7 +69,13 @@ int main(int argc, char *argv[]) {
         D_PRINT("used address: %s", host_debug);
     #endif
 
-    auto ping_cl = ping::open(address);
+    ping::ping_client* ping_cl;
+    try {
+        ping_cl = ping::open(address);
+    } catch (std::runtime_error& e) {
+        fprintf(stderr, "[error] when try open socket: %s\n", e.what());
+        exit(EXIT_FAILURE);
+    }
 
     ping_cl->send("helloping_cl->send(hello, 5, 0);", 5, 0);
     ping_cl->send("hello", 5, 0);

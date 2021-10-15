@@ -1,3 +1,10 @@
+/**
+ * Project: ICMP encrypted file transfer - ISA BUT FIT 2021
+ * generic ping file implementation
+ * @author Lukáš Plevač <xpleva07> (BUT FIT)
+ * @date 15.10.2021
+ */
+
 #include "ping.h"
 #include "ping4.h"
 #include "ping6.h"
@@ -19,6 +26,8 @@ namespace ping {
             default:
                 D_PRINT("bad family");
         }
+
+        throw std::runtime_error("bad INET family");
 
         return NULL; //dump interface object
     }

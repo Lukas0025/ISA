@@ -1,3 +1,10 @@
+/**
+ * Project: ICMP encrypted file transfer - ISA BUT FIT 2021
+ * addresses support functions implementation file
+ * @author Lukáš Plevač <xpleva07> (BUT FIT)
+ * @date 15.10.2021
+ */
+
 #include "addresses.h"
 
 namespace addresses {

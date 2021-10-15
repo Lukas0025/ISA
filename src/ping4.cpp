@@ -1,6 +1,11 @@
-#include "ping4.h"
-#include <errno.h>
+/**
+ * Project: ICMP encrypted file transfer - ISA BUT FIT 2021
+ * ping on IPv4 implementation file
+ * @author Lukáš Plevač <xpleva07> (BUT FIT)
+ * @date 15.10.2021
+ */
 
+#include "ping4.h"
 
 namespace ping {
 
@@ -8,12 +13,18 @@ namespace ping {
         this->addr = addr.ai_addr;
         this->sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP);
 
+        if (this->sock == -1) {
+            D_PRINT("Fail to create socket");
+            throw std::runtime_error(strerror(errno));
+        }
+
         const int ttl_val=64;
         
         // set socket options at ip to TTL and value to 64,
         // change to what you want by setting ttl_val
         if (setsockopt(this->sock, SOL_IP, IP_TTL, &ttl_val, sizeof(ttl_val)) != 0) {
             D_PRINT("Fail to set socket TTL");
+            throw std::runtime_error(strerror(errno));
         }
 
         D_PRINT("socket TTL is set");
@@ -25,6 +36,7 @@ namespace ping {
         // setting timeout of recv setting
         if (setsockopt(this->sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv_out, sizeof tv_out) != 0) {
             D_PRINT("Fail to set socket TIMEOUT");
+            throw std::runtime_error(strerror(errno));
         }
 
         D_PRINT("socket TIMEOUT is set");
