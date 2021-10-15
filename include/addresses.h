@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <cstring>
 #include "debug.h"
 
 namespace addresses {

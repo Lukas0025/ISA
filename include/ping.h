@@ -9,6 +9,7 @@
 
 #include <stdexcept>
 #include <errno.h>
+#include <cstring>
 #include "debug.h"
 #include "addresses.h"
 
