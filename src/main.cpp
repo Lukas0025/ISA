@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    ping::send_string(ping_cl, "Lorem ipsum dolor sit amet, consectetur adipiscing elit blandit. ", 64);
+    ping_cl->send_string("Lorem ipsum dolor sit amet, consectetur adipiscing elit blandit. ", 64);
 
     exit(EXIT_SUCCESS);
 }
