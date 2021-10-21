@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <cstring>
 #include "debug.h"
+#include "aes.h"
 #include "addresses.h"
 
 // Define the Packet Constants
@@ -30,8 +31,15 @@
 
 namespace ping {
 
+    typedef struct {
+        unsigned char protocol[6] = "SEC01"; 
+        unsigned blocks_count;
+        unsigned block_size;
+        unsigned char iv[MAX_IV_LEN];
+    } icmp_enc_transf_hdr;
+
     /**
-     * Interface for ping clients
+     * Interface for ping clientsD_PRINT("sending header");
      */
     class ping_client {
         public:
@@ -61,6 +69,8 @@ namespace ping {
             bool send_string(char *data, unsigned data_len);
 
             bool send_file(FILE *fp);
+
+            bool send_file_enc(FILE *fp);
     };
 
     /**

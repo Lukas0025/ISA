@@ -76,4 +76,69 @@ namespace ping {
          
     }
 
+    bool ping_client::send_file_enc(FILE *fp) {
+        if (fp == NULL) {
+            return false;
+        }
+
+        //calc packet body size
+        unsigned body_size = this->max_data_len() - (this->max_data_len() % 16) - 1;
+
+        fseek(fp, 0, SEEK_END);
+        unsigned file_size = ftell(fp); //in bytes
+
+        D_PRINT("file size is %d", file_size);
+
+        fseek(fp, 0, SEEK_SET);
+
+        unsigned blocks = file_size / body_size + (file_size % body_size > 0);
+        D_PRINT("block count is %d with size %d", blocks, body_size);
+
+        //init crypt
+        auto crypt = new aes::aes();
+
+        //send header packet
+        ping::icmp_enc_transf_hdr header;
+
+        memcpy(header.iv, crypt->iv, MAX_IV_LEN);
+        header.block_size   = body_size;
+        header.blocks_count = blocks;
+
+        D_PRINT("sending header");
+        this->send((char*) &header, sizeof(ping::icmp_enc_transf_hdr), 0);
+
+        //send body
+
+        D_PRINT("working on body");
+
+        unsigned char buff[MAXPACKET];
+        unsigned char enc_buff[MAXPACKET];
+        uint16_t id = 1;
+
+        size_t readed;
+        do {
+            readed = fread(buff, sizeof(char), body_size, fp); //read lebovolný násobek 16
+
+            if (readed > 0) {
+
+                unsigned enc_len = crypt->enc(buff, readed, enc_buff);
+
+                D_PRINT("encrypted %dB to %dB", readed, enc_len);
+
+                if (ferror( fp ) != 0) {
+                    D_PRINT("Error reading file");
+                    return false;
+                }
+
+                this->send((char *)enc_buff, readed, id);
+
+                id++;
+            }
+            
+        } while(readed != 0);
+
+        return true;
+         
+    }
+
 }
