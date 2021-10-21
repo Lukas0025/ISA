@@ -71,6 +71,8 @@ namespace ping {
             id++;
             
         } while(readed != 0);
+
+        return true;
          
     }
 

@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "addresses.h"
+#include "aes.h"
 #include "ping.h"
 
 void print_help(char *prog) {
@@ -44,7 +45,7 @@ int main(int argc, char *argv[]) {
                 exit(EXIT_FAILURE);
         }
     }
-
+    
     //Check of existence of right parameters for modes
     if (!listen && (send_addr == NULL || send_file == NULL)) {
         fprintf(stderr, "send mode and not -r or -s\n");
@@ -77,10 +78,24 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    auto fp = fopen(send_file, "r");
+    //auto fp = fopen(send_file, "r");
 
-    ping_cl->send_file(fp);
+    //ping_cl->send_file(fp);
     //ping_cl->send_string("Lorem ipsum dolor sit amet, consectetur adipiscing elit blandit. ", 64);
+    auto cript = new aes::aes();
+
+    unsigned char test[256];
+    unsigned char test2[256];
+
+    unsigned len = cript->enc((unsigned char*) "hello", 5, test);
+    test[len] = '\0';
+
+    printf("enc: %s\n", test);
+
+    len = cript->dec(test, len, test2);
+    test2[len] = '\0';
+
+    printf("dec: %s, IV: %s\n", test2, cript->iv);
 
     exit(EXIT_SUCCESS);
 }
