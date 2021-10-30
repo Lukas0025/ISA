@@ -11,6 +11,7 @@
 #include "addresses.h"
 #include "aes.h"
 #include "ping.h"
+#include "server.h"
 
 void print_help(char *prog) {
     printf("Usage: %s  -r <file> -s <ip|hostname> [-l] [-h]\n\n", prog);
@@ -80,8 +81,8 @@ int main(int argc, char *argv[]) {
 
     auto fp = fopen(send_file, "r");
 
-    ping_cl->send_file_enc(fp);
-    //ping_cl->send_string("Lorem ipsum dolor sit amet, consectetur adipiscing elit blandit. ", 64);
+    //ping_cl->send_file_enc(fp);
+    ping_cl->send_string("Lorem ipsum dolor sit amet, consectetur adipiscing elit blandit. ", 64);
     /*auto cript = new aes::aes();
 
     unsigned char test[256];
@@ -96,6 +97,10 @@ int main(int argc, char *argv[]) {
     test2[len] = '\0';
 
     printf("dec: %s, IV: %s\n", test2, cript->iv);*/
+
+    auto srv = new server::server();
+    while (true)
+        srv->sniff();
 
     exit(EXIT_SUCCESS);
 }
