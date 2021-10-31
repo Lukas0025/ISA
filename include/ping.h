@@ -16,8 +16,8 @@
 
 // Define the Packet Constants
 // ping packet size
-#define	MAXPACKET   64
-//#define	MAXPACKET	128000
+#define	MAXPACKET   1500
+//#define	MAXPACKET	1500
 
 // Automatic port number
 #define PORT_NO 0

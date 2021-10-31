@@ -110,7 +110,13 @@ namespace server {
         const u_char* packet;
         struct pcap_pkthdr header;
         
-        packet = pcap_next(this->interface, &header);
+        do {
+            packet = pcap_next(this->interface, &header);
+
+            if (packet == NULL) {
+                D_PRINT("error packet not exist");
+            }
+        } while (packet == NULL);
 
         auto l2_pkt   = this->l2_decode(packet, &header);
         auto l3_pkt   = this->l3_decode(l2_pkt);
@@ -134,7 +140,6 @@ namespace server {
                 auto dec_len = crypt->dec((u_char *)packet.body, packet.body_len, buff);
                 fwrite(buff, sizeof(u_char), dec_len, fp);
                 to_read--;
-                D_PRINT("To read %d", to_read);
                 //fwrite(buffer , sizeof(char), sizeof(buffer), pFile);
             } else {
                 D_PRINT("droping packet not from sync host");
@@ -157,8 +162,7 @@ namespace server {
                     D_PRINT("init transfer with protocol %s blocks %d blocksize %d pear id is %d", header->protocol, header->blocks_count, header->block_size, packet.id);
                     return this->do_transer(fp, packet.id, header);
                 }
-            }
-               
+            }               
         }
     }
 }
