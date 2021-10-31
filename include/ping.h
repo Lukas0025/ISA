@@ -32,10 +32,10 @@
 namespace ping {
 
     typedef struct {
-        unsigned char protocol[6] = "SEC01"; 
-        unsigned blocks_count;
-        unsigned block_size;
-        unsigned char iv[MAX_IV_LEN];
+        u_char protocol[10] = "SECv0.0.1"; 
+        uint32_t blocks_count;
+        uint32_t block_size;
+        u_char iv[MAX_IV_LEN];
     } icmp_enc_transf_hdr;
 
     /**

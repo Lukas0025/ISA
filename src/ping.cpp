@@ -93,6 +93,7 @@ namespace ping {
 
         unsigned blocks = file_size / body_size + (file_size % body_size > 0);
         D_PRINT("block count is %d with size %d", blocks, body_size);
+        D_PRINT("max packet size is %d", this->max_data_len());
 
         //init crypt
         auto crypt = new aes::aes();
@@ -130,7 +131,7 @@ namespace ping {
                     return false;
                 }
 
-                this->send((char *)enc_buff, readed, id);
+                this->send((char *)enc_buff, enc_len, id);
 
                 id++;
             }

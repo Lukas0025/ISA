@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
 
     //get opts for parameters parse
     int opt;
-    while ((opt = getopt(argc, argv, "r:s:ih")) != -1) {
+    while ((opt = getopt(argc, argv, "r:s:ihl")) != -1) {
         switch (opt) {
             case 'r':
                 send_file = optarg;
@@ -53,9 +53,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Usage: %s  -r <file> -s <ip|hostname> [-l] [-h]\n", argv[0]);
         exit(EXIT_FAILURE);
     } else if (listen && (send_addr != NULL || send_file != NULL)) {
-        fprintf(stderr, "-l do not need -r or -s\n");
-        fprintf(stderr, "Usage: %s  -r <file> -s <ip|hostname> [-l] [-h]\n", argv[0]);
-        exit(EXIT_FAILURE);
+        //TBD
     }
 
     auto address = addresses::get(send_addr);
@@ -71,36 +69,23 @@ int main(int argc, char *argv[]) {
         D_PRINT("used address: %s", host_debug);
     #endif
 
-    ping::ping_client* ping_cl;
-    try {
-        ping_cl = ping::open(address);
-    } catch (std::runtime_error& e) {
-        fprintf(stderr, "[error] when try open socket: %s\n", e.what());
-        exit(EXIT_FAILURE);
+    if (!listen) {
+        ping::ping_client* ping_cl;
+        try {
+            ping_cl = ping::open(address);
+        } catch (std::runtime_error& e) {
+            fprintf(stderr, "[error] when try open socket: %s\n", e.what());
+            exit(EXIT_FAILURE);
+        }
+
+        auto fp = fopen(send_file, "r");
+
+        ping_cl->send_file_enc(fp);
+    } else {
+        auto fp = fopen (send_file, "wb");
+        auto srv = new server::server();
+        srv->listen(fp);
     }
-
-    auto fp = fopen(send_file, "r");
-
-    //ping_cl->send_file_enc(fp);
-    ping_cl->send_string("Lorem ipsum dolor sit amet, consectetur adipiscing elit blandit. ", 64);
-    /*auto cript = new aes::aes();
-
-    unsigned char test[256];
-    unsigned char test2[256];
-
-    unsigned len = cript->enc((unsigned char*) "hello", 5, test);
-    test[len] = '\0';
-
-    printf("enc: %s\n", test);
-
-    len = cript->dec(test, len, test2);
-    test2[len] = '\0';
-
-    printf("dec: %s, IV: %s\n", test2, cript->iv);*/
-
-    auto srv = new server::server();
-    while (true)
-        srv->sniff();
 
     exit(EXIT_SUCCESS);
 }

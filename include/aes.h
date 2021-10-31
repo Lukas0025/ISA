@@ -22,7 +22,7 @@ namespace aes {
             unsigned enc(unsigned char *plaintext, unsigned plaintext_len, unsigned char *ciphertext);
             unsigned dec(unsigned char *ciphertext, int ciphertext_len, unsigned char *plaintext);
             void set_key(unsigned char key[MAX_KEY_LEN]);
-            unsigned char iv[MAX_IV_LEN];
+            u_char iv[MAX_IV_LEN];
 
         private:
             unsigned char key[MAX_KEY_LEN];

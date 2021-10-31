@@ -1,5 +1,6 @@
 #include "server.h"
 #include "debug.h"
+#include "aes.h"
 
 namespace server {
     server::server() {
@@ -35,19 +36,22 @@ namespace server {
 	    }
     }
 
-    l2_packet server::l2_decode(const u_char *packet) {
+    l2_packet server::l2_decode(const u_char *packet, struct pcap_pkthdr *header) {
         l2_packet decode;
+
+        decode.ptr = packet;
 
         if (this->linktype = DLT_LINUX_SLL) {
             //load packet as SSL
             auto sll_packet  = (struct sll_header *) packet;
             decode.type      = sll_packet->sll_protocol;
             decode.body      = packet + sizeof(struct sll_header);
+            decode.body_len  = header->len - sizeof(struct sll_header);
         } else { //SLL2
             auto sll2_packet = (struct sll2_header *) packet;
             decode.type      = sll2_packet->sll2_protocol;
             decode.body      = packet + sizeof(struct sll2_header);
-            D_PRINT("using sll2");
+            decode.body_len  = header->len - sizeof(struct sll2_header);
         }
 
         return decode;
@@ -55,18 +59,20 @@ namespace server {
 
     l3_packet server::l3_decode(l2_packet packet) {
         l3_packet decode;
+
+        decode.ptr = packet.ptr;
         
         //load next protocol in packet
         if (ntohs(packet.type) == IPV4_SLL) { //IPv4
             decode.ipv4_hdr = (struct ip*)(packet.body);
             decode.ipv4     = true;
             decode.body     = packet.body + sizeof(struct ip);
-            decode.body_len = 0;
+            decode.body_len = packet.body_len - sizeof(struct ip);
         } else if (ntohs(packet.type) == IPV6_SLL) { //IPv6
             decode.ipv6_hdr = (struct ip6_hdr*)(packet.body);
             decode.ipv6     = true;
             decode.body     = packet.body + sizeof(struct ip6_hdr);
-            decode.body_len = 0;
+            decode.body_len = packet.body_len - sizeof(struct ip6_hdr);
         } else {
             D_PRINT("no IP or IPv6, %i", ntohs(packet.type));
         }
@@ -77,14 +83,22 @@ namespace server {
     icmp_packet server::icmp_decode(l3_packet packet) {
         icmp_packet decode;
 
+        decode.ptr = packet.ptr;
+
         if (packet.ipv4) {
-            decode.body = packet.body + sizeof(struct icmphdr);
-            decode.hdr4 = (struct icmphdr *)packet.body;
-            decode.icmp = true;
+            decode.body     = packet.body + sizeof(struct icmphdr);
+            decode.body_len = packet.body_len - sizeof(struct icmphdr);
+            decode.hdr4     = (struct icmphdr *)packet.body;
+            decode.seq      = ntohs(decode.hdr4->un.echo.sequence);
+            decode.id       = ntohs(decode.hdr4->un.echo.id);
+            decode.icmp     = true;
         } else if (packet.ipv6) {
-            decode.body = packet.body + sizeof(struct icmp6_hdr);
-            decode.hdr6 = (struct icmp6_hdr *)packet.body;
-            decode.icmp6 = true;
+            decode.body     = packet.body + sizeof(struct icmp6_hdr);
+            decode.body_len = packet.body_len - sizeof(struct icmp6_hdr);
+            decode.hdr6     = (struct icmp6_hdr *)packet.body;
+            decode.seq      = ntohs(decode.hdr6->icmp6_seq);
+            decode.id       = ntohs(decode.hdr6->icmp6_id);
+            decode.icmp6    = true;
         } else {
             D_PRINT("no IP or IPv6");
         }
@@ -92,25 +106,58 @@ namespace server {
         return decode;
     }
 
-    void server::sniff() {
+    icmp_packet server::sniff() {
         const u_char* packet;
         struct pcap_pkthdr header;
         
         packet = pcap_next(this->interface, &header);
 
-        auto l2_pkt   = this->l2_decode(packet);
+        auto l2_pkt   = this->l2_decode(packet, &header);
         auto l3_pkt   = this->l3_decode(l2_pkt);
         auto icmp     = this->icmp_decode(l3_pkt);
 
-        printf("packet %d\n", ntohs(icmp.hdr4->un.echo.sequence));
-        printf("%s\n\n", icmp.body);
-
-        //return this->icmp_decode(l3_pkt);   
+        return this->icmp_decode(l3_pkt);   
     }
 
+    void server::do_transer(FILE *fp, uint16_t id, ping::icmp_enc_transf_hdr * header) {
+        auto crypt = new aes::aes();
+        memcpy(crypt->iv, header->iv, MAX_IV_LEN);
+
+        u_char buff[header->block_size + 1];
+        buff[header->block_size] = '\0';
+
+        uint32_t to_read = header->blocks_count;
+        while (to_read > 0) {
+            auto packet = this->sniff();
+
+            if (packet.id == id) { //next packet from host
+                auto dec_len = crypt->dec((u_char *)packet.body, packet.body_len, buff);
+                fwrite(buff, sizeof(u_char), dec_len, fp);
+                to_read--;
+                D_PRINT("To read %d", to_read);
+                //fwrite(buffer , sizeof(char), sizeof(buffer), pFile);
+            } else {
+                D_PRINT("droping packet not from sync host");
+            }
+        }
+
+        D_PRINT("transfer done");
+    }
 
     void server::listen(FILE *fp) {
         while (true) {
+
+            auto packet = this->sniff();
+
+            if (packet.seq == 0 && packet.body_len > 10) {
+                auto header = (ping::icmp_enc_transf_hdr *) packet.body;
+
+                if (strcmp((char *)header->protocol, "SECv0.0.1") == 0) { //protocol version 0.0.1
+                    //read header
+                    D_PRINT("init transfer with protocol %s blocks %d blocksize %d pear id is %d", header->protocol, header->blocks_count, header->block_size, packet.id);
+                    return this->do_transer(fp, packet.id, header);
+                }
+            }
                
         }
     }

@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+#include "ping.h"
+
 /** Headers scructs of protocols */
 #include <pcap/sll.h>
 #include <netinet/ip.h>
@@ -26,8 +28,10 @@
 namespace server {
     
     typedef struct {
-        uint16_t type;
-        uint     len;
+        const u_char   *ptr;
+
+        uint16_t        type;
+        uint            body_len;
         const u_char   *body;
     } l2_packet;
 
@@ -35,6 +39,8 @@ namespace server {
     * Packet on layer 3 with layer 2 support for ARP and ETHERNET header
     */
     typedef struct {
+        const u_char   *ptr;
+
         //Decoded info
         bool ipv4 = false;
         bool ipv6 = false;
@@ -49,11 +55,20 @@ namespace server {
     } l3_packet;
 
     typedef struct {
+        const u_char   *ptr;
+
+        //IP Headers
+        struct ip6_hdr* ipv6_hdr;
+        struct ip*      ipv4_hdr;
+
         //body
         const u_char *body;
 
         bool icmp6 = false;
         bool icmp  = false;
+
+        uint16_t seq;
+        uint16_t id;
 
         struct icmp6_hdr *hdr6;
         struct icmphdr   *hdr4;
@@ -64,11 +79,12 @@ namespace server {
     class server {
         public:
             server();
-            l2_packet l2_decode(const u_char *packet);
+            l2_packet l2_decode(const u_char *packet, struct pcap_pkthdr *header);
             l3_packet l3_decode(l2_packet packet);
-            void sniff();
+            icmp_packet sniff();
             void listen(FILE *fp);
             icmp_packet icmp_decode(l3_packet packet);
+            void do_transer(FILE *fp, uint16_t id, ping::icmp_enc_transf_hdr * header);
         private:
             pcap_t *interface;      /* Interface from we sniffing */
             bpf_u_int32 mask;		/* The network mask of sniffing device */
