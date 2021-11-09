@@ -6,6 +6,9 @@ build:
 debug:
 	$(CXX) src/* -I include/ -D DEBUG -lpcap -g -lcrypto -o secret-debug
 
+memdebugonly:
+	$(CXX) src/* -I include/ -lpcap -g -lcrypto -o secret-mem
+
 install: build
 	cp secret /usr/local/bin
 

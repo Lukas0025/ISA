@@ -101,6 +101,9 @@ namespace ping {
         //send header packet
         ping::icmp_enc_transf_hdr header;
 
+        //fill header with zeros
+        //bzero(&header, sizeof(ping::icmp_enc_transf_hdr));
+
         memcpy(header.iv, crypt->iv, MAX_IV_LEN);
         header.block_size   = body_size;
         header.blocks_count = blocks;

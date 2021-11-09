@@ -75,7 +75,7 @@ namespace ping {
         }
 
         //recv reply
-        unsigned recv_size;
+        unsigned recv_size = 0;
         if (recvfrom(this->sock, packet, this->packet_size(data_len), 0, this->addr, &recv_size) <= 0) {
 			D_PRINT("Fail to recv reply %i, %s", errno, strerror(errno));
             return false;
@@ -83,7 +83,6 @@ namespace ping {
 
         free(packet);
 
-        //todo: check packet
         return true;
     }
 

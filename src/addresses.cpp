@@ -38,8 +38,9 @@ namespace addresses {
 
         #endif
 
+        //todo free
+        //freeaddrinfo(res);
 
-        freeaddrinfo(res);
 
         return output;
     }
