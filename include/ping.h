@@ -29,6 +29,8 @@
 // in seconds
 #define RECV_TIMEOUT 10
 
+#define PING_RETRY 3
+
 namespace ping {
 
     typedef struct {

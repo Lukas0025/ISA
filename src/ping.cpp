@@ -106,7 +106,16 @@ namespace ping {
         header.blocks_count = blocks;
 
         D_PRINT("sending header");
-        this->send((char*) &header, sizeof(ping::icmp_enc_transf_hdr), 0);
+        int trys; 
+        for (trys = 0; trys < PING_RETRY; trys++) {
+            if (this->send((char*) &header, sizeof(ping::icmp_enc_transf_hdr), 0)) {
+                break;
+            }
+        }
+
+        if (trys == PING_RETRY) {
+            return false;
+        }
 
         //send body
 
@@ -131,7 +140,15 @@ namespace ping {
                     return false;
                 }
 
-                this->send((char *)enc_buff, enc_len, id);
+                for (trys = 0; trys < PING_RETRY; trys++) {
+                    if (this->send((char *)enc_buff, enc_len, id)) {
+                        break;
+                    }
+                }
+                
+                if (trys == PING_RETRY) {
+                    return false;
+                }
 
                 id++;
             }
