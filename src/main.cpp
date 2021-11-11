@@ -56,36 +56,47 @@ int main(int argc, char *argv[]) {
         //TBD
     }
 
-    auto address = addresses::get(send_addr);
+    auto address_list = addresses::get(send_addr);
 
-    if (address.ai_family == AF_UNSPEC) {
+    if (address_list == NULL) {
         fprintf(stderr, "cant resolve IP address\n");
         exit(EXIT_FAILURE);
     }
 
-    #ifdef DEBUG
-        char host_debug[256];
-        getnameinfo(address.ai_addr, address.ai_addrlen, host_debug, sizeof(host_debug), NULL, 0, NI_NUMERICHOST);
-        D_PRINT("used address: %s", host_debug);
-    #endif
-
     if (!listen) {
-        ping::ping_client* ping_cl;
-        try {
-            ping_cl = ping::open(address);
-        } catch (std::runtime_error& e) {
-            fprintf(stderr, "[error] when try open socket: %s\n", e.what());
-            exit(EXIT_FAILURE);
+        
+        for (addresses::addr_t *addr = address_list; addr != NULL; addr = addr->ai_next) {
+            
+            #ifdef DEBUG
+                char host_debug[256];
+                getnameinfo(addr->ai_addr, addr->ai_addrlen, host_debug, sizeof(host_debug), NULL, 0, NI_NUMERICHOST);
+                D_PRINT("used address: %s", host_debug);
+            #endif
+            
+            ping::ping_client* ping_cl;
+            
+            try {
+                ping_cl = ping::open(*addr);
+            } catch (std::runtime_error& e) {
+                fprintf(stderr, "[error] when try open socket: %s\n", e.what());
+                continue;
+            }
+            
+            auto fp = fopen(send_file, "r");
+            
+            if (ping_cl->send_file_enc(fp)) {
+                fprintf(stderr, "Sending done\n");
+                break;
+            }
         }
 
-        auto fp = fopen(send_file, "r");
-
-        ping_cl->send_file_enc(fp);
     } else {
         auto fp = fopen (send_file, "wb");
         auto srv = new server::server();
         srv->listen(fp);
     }
+
+    freeaddrinfo(address_list);
 
     exit(EXIT_SUCCESS);
 }

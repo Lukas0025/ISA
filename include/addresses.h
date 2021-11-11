@@ -25,5 +25,5 @@ namespace addresses {
      * @param hostname pointer on char array with hostname or IP address (IPv4 or IPv6)
      * @return addr_t of hostname, if translate fail return .ai_family = AF_UNSPEC;
      */
-    addr_t get(char *hostname);
+    addr_t *get(char *hostname);
 }

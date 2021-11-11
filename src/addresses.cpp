@@ -8,13 +8,11 @@
 #include "addresses.h"
 
 namespace addresses {
-    addr_t get(char *hostname) {
+    addr_t *get(char *hostname) {
         addr_t hints;
-        addr_t output;
 
         memset(&hints, 0, sizeof(addr_t));
         hints.ai_family  = AF_UNSPEC;
-        output.ai_family = AF_UNSPEC;
 
         // get addr info
         addr_t *res;
@@ -23,10 +21,8 @@ namespace addresses {
         if (ret != 0) {
             // fail to get HOST
             D_PRINT("Fail resolve addresses\n");
-            return output;
+            return NULL;
         }
-
-        output = *res;
         
         #ifdef DEBUG
 
@@ -38,10 +34,6 @@ namespace addresses {
 
         #endif
 
-        //todo free
-        //freeaddrinfo(res);
-
-
-        return output;
+        return res;
     }
 }
