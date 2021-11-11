@@ -120,7 +120,6 @@ namespace server {
 
         auto l2_pkt   = this->l2_decode(packet, &header);
         auto l3_pkt   = this->l3_decode(l2_pkt);
-        auto icmp     = this->icmp_decode(l3_pkt);
 
         return this->icmp_decode(l3_pkt);   
     }
