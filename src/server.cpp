@@ -1,11 +1,14 @@
 #include "server.h"
 #include "debug.h"
 #include "aes.h"
+#include "addresses_op.h"
 
 namespace server {
-    server::server() {
+    server::server(addresses::addr_t* address_list) {
         char errbuf[PCAP_ERRBUF_SIZE];
         struct bpf_program fp;		/* compilled filter */
+
+        this->address_list = address_list;
         
         if (pcap_lookupnet("any", &this->net, &this->mask, errbuf) == -1) {
             this->net = 0;
@@ -124,7 +127,7 @@ namespace server {
         return this->icmp_decode(l3_pkt);   
     }
 
-    void server::do_transer(FILE *fp, uint16_t id, ping::icmp_enc_transf_hdr * header) {
+    void server::do_transer(FILE *fp, uint16_t id, ping::icmp_enc_transf_hdr * header, icmp_packet sync_packet) {
         auto crypt = new aes::aes();
         memcpy(crypt->iv, header->iv, MAX_IV_LEN);
 
@@ -134,8 +137,7 @@ namespace server {
         uint32_t to_read = header->blocks_count;
         while (to_read > 0) {
             auto packet = this->sniff();
-
-            if (packet.id == id) { //next packet from host
+            if ((packet.id == id) && addresses::packet_addrs_cmp(sync_packet, packet)) { //next packet from host
                 auto dec_len = crypt->dec((u_char *)packet.body, packet.body_len, buff);
                 fwrite(buff, sizeof(u_char), dec_len, fp);
                 to_read--;
@@ -153,13 +155,17 @@ namespace server {
 
             auto packet = this->sniff();
 
+            if (!addresses::packet_addr_in(packet, this->address_list)) {
+                continue;
+            }
+
             if (packet.seq == 0 && packet.body_len > 10) {
                 auto header = (ping::icmp_enc_transf_hdr *) packet.body;
 
                 if (strcmp((char *)header->protocol, "SECv0.0.1") == 0) { //protocol version 0.0.1
                     //read header
                     D_PRINT("init transfer with protocol %s blocks %d blocksize %d pear id is %d", header->protocol, header->blocks_count, header->block_size, packet.id);
-                    return this->do_transer(fp, packet.id, header);
+                    return this->do_transer(fp, packet.id, header, packet);
                 }
             }               
         }

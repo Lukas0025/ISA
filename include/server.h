@@ -1,7 +1,7 @@
 /**
  * Project: packet sniffer - IPK variant ZETA
  * @author Lukáš Plevač <xpleva07> (BUT FIT)
- * @date 19.4.2021
+ * @date 11.11.2021
  */
 #pragma once
 
@@ -78,18 +78,19 @@ namespace server {
 
     class server {
         public:
-            server();
+            server(addresses::addr_t*);
             l2_packet l2_decode(const u_char *packet, struct pcap_pkthdr *header);
             l3_packet l3_decode(l2_packet packet);
             icmp_packet sniff();
             void listen(FILE *fp);
             icmp_packet icmp_decode(l3_packet packet);
-            void do_transer(FILE *fp, uint16_t id, ping::icmp_enc_transf_hdr * header);
+            void do_transer(FILE *fp, uint16_t id, ping::icmp_enc_transf_hdr * header, icmp_packet sync_packet);
         private:
             pcap_t *interface;      /* Interface from we sniffing */
             bpf_u_int32 mask;		/* The network mask of sniffing device */
             bpf_u_int32 net;        /* Net of interface */
             int linktype;
+            addresses::addr_t *address_list;
     };
 
 }
