@@ -137,7 +137,7 @@ namespace server {
         uint32_t to_read = header->blocks_count;
         while (to_read > 0) {
             auto packet = this->sniff();
-            if ((packet.id == id) && addresses::packet_addrs_cmp(sync_packet, packet)) { //next packet from host
+            if ((packet.id == id) && addresses::packet_src_cmp(sync_packet, packet)) { //next packet from host
                 auto dec_len = crypt->dec((u_char *)packet.body, packet.body_len, buff);
                 fwrite(buff, sizeof(u_char), dec_len, fp);
                 to_read--;
