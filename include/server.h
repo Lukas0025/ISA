@@ -84,7 +84,7 @@ namespace server {
             icmp_packet sniff();
             void listen(FILE *fp);
             icmp_packet icmp_decode(l3_packet packet);
-            void do_transer(FILE *fp, uint16_t id, ping::icmp_enc_transf_hdr * header, icmp_packet sync_packet);
+            void do_transer(FILE *fp, uint16_t id, ping::icmp_enc_transf_hdr * header, icmp_packet *sync_packet);
         private:
             pcap_t *interface;      /* Interface from we sniffing */
             bpf_u_int32 mask;		/* The network mask of sniffing device */

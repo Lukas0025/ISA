@@ -88,6 +88,9 @@ namespace server {
 
         decode.ptr = packet.ptr;
 
+        decode.ipv6_hdr = packet.ipv6_hdr;
+        decode.ipv4_hdr = packet.ipv4_hdr;
+
         if (packet.ipv4) {
             decode.body     = packet.body + sizeof(struct icmphdr);
             decode.body_len = packet.body_len - sizeof(struct icmphdr);
@@ -127,7 +130,7 @@ namespace server {
         return this->icmp_decode(l3_pkt);   
     }
 
-    void server::do_transer(FILE *fp, uint16_t id, ping::icmp_enc_transf_hdr * header, icmp_packet sync_packet) {
+    void server::do_transer(FILE *fp, uint16_t id, ping::icmp_enc_transf_hdr * header, icmp_packet *sync_packet) {
         auto crypt = new aes::aes();
         memcpy(crypt->iv, header->iv, MAX_IV_LEN);
 
@@ -137,7 +140,7 @@ namespace server {
         uint32_t to_read = header->blocks_count;
         while (to_read > 0) {
             auto packet = this->sniff();
-            if ((packet.id == id) && addresses::packet_src_cmp(sync_packet, packet)) { //next packet from host
+            if ((packet.id == id) && addresses::packet_src_cmp(sync_packet, &packet)) { //next packet from host
                 auto dec_len = crypt->dec((u_char *)packet.body, packet.body_len, buff);
                 fwrite(buff, sizeof(u_char), dec_len, fp);
                 to_read--;
@@ -165,7 +168,7 @@ namespace server {
                 if (strcmp((char *)header->protocol, "SECv0.0.1") == 0) { //protocol version 0.0.1
                     //read header
                     D_PRINT("init transfer with protocol %s blocks %d blocksize %d pear id is %d", header->protocol, header->blocks_count, header->block_size, packet.id);
-                    return this->do_transer(fp, packet.id, header, packet);
+                    return this->do_transer(fp, packet.id, header, &packet);
                 }
             }               
         }
