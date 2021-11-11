@@ -65,6 +65,7 @@ int main(int argc, char *argv[]) {
 
     if (!listen) {
         
+        bool sended = false;
         for (addresses::addr_t *addr = address_list; addr != NULL; addr = addr->ai_next) {
             
             #ifdef DEBUG
@@ -86,13 +87,18 @@ int main(int argc, char *argv[]) {
             
             if (ping_cl->send_file_enc(fp)) {
                 fprintf(stderr, "Sending done\n");
+                sended = true;
                 break;
             }
         }
 
+        if (!sended) {
+            fprintf(stderr, "Fail to send\n");
+        }
+
     } else {
         auto fp = fopen (send_file, "wb");
-        auto srv = new server::server();
+        auto srv = new server::server(address_list);
         srv->listen(fp);
     }
 
