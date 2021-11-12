@@ -21,7 +21,7 @@
 
 #define MAX_IV_LEN  16 + 1 //for \0
 #define MAX_KEY_LEN 32 + 1 //for \0
-#define DEFAULT_AES_KEY "01234567890123456789012345678901"
+#define DEFAULT_AES_KEY "xpleva07\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
 
 namespace aes {
     class aes {
