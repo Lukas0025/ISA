@@ -150,6 +150,7 @@ namespace server {
             auto packet = this->sniff();
             if ((packet.id == id) && addresses::packet_src_cmp(sync_packet, &packet)) { //next packet from host
                 auto dec_len = crypt->dec((u_char *)packet.body, packet.body_len, buff);
+                D_PRINT("dec len is %d", dec_len);
                 fwrite(buff, sizeof(u_char), dec_len, fp);
                 to_read--;
             } else {
