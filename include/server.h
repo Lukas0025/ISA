@@ -29,7 +29,10 @@
 #define PCAP_RECBUF_SIZE 100*1024*1024
 
 namespace server {
-    
+
+    /**
+    * Packet on layer 2
+    */    
     typedef struct {
         const u_char   *ptr;
 
@@ -39,7 +42,7 @@ namespace server {
     } l2_packet;
 
     /**
-    * Packet on layer 3 with layer 2 support for ARP and ETHERNET header
+    * Packet on layer 3
     */
     typedef struct {
         const u_char   *ptr;
@@ -57,6 +60,9 @@ namespace server {
         uint body_len;
     } l3_packet;
 
+    /**
+    * ICMP packet
+    */
     typedef struct {
         const u_char   *ptr;
 
@@ -67,12 +73,14 @@ namespace server {
         //body
         const u_char *body;
 
+        //icmp type
         bool icmp6 = false;
         bool icmp  = false;
 
         uint16_t seq;
         uint16_t id;
 
+        //icmp headers
         struct icmp6_hdr *hdr6;
         struct icmphdr   *hdr4;
 
@@ -82,11 +90,48 @@ namespace server {
     class server {
         public:
             server();
+
+            /**
+             * Decode packet on L1 to L2
+             * @param packet pointer to packet from pcap
+             * @param header header of pcap packet
+             * @return decoded l2_packet
+             */
             l2_packet l2_decode(const u_char *packet, struct pcap_pkthdr *header);
+
+            /**
+             * Decode packet on L2 to L3
+             * @param packet l2 packet
+             * @return decoded l3_packet
+             */
             l3_packet l3_decode(l2_packet packet);
+
+            /**
+             * Sniff ICMP packet from interface any
+             * @return decoded icmp_packet
+             */
             icmp_packet sniff();
+
+            /**
+             * Listen for SEC protocol transfer if hear init packet start transmission
+             * @param fp pointer for file to save data
+             */
             void listen(FILE *fp);
+
+            /**
+             * Decode packet on L3 to imcp packet
+             * @param packet l3 packet
+             * @return decoded icmp packet
+             */
             icmp_packet icmp_decode(l3_packet packet);
+
+            /**
+             * Handle SEC transfer and save data to file
+             * @param fp pointer for file to sove data
+             * @param id id of ICMP init packet
+             * @param header header of ICMP init packet
+             * @param sync_packet ICMP init packet
+             */
             void do_transer(FILE *fp, uint16_t id, ping::icmp_enc_transf_hdr * header, icmp_packet *sync_packet);
         private:
             pcap_t *interface;      /* Interface from we sniffing */
