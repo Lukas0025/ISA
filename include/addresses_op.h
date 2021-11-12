@@ -1,3 +1,10 @@
+/**
+ * Project: ICMP encrypted file transfer - ISA BUT FIT 2021
+ * addresses support operations with packets header file
+ * @author Lukáš Plevač <xpleva07> (BUT FIT)
+ * @date 15.10.2021
+ */
+
 #pragma once
 
 #include <stdio.h>

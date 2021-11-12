@@ -1,3 +1,10 @@
+/**
+ * Project: ICMP encrypted file transfer - ISA BUT FIT 2021
+ * AES ecryption file
+ * @author Lukáš Plevač <xpleva07> (BUT FIT)
+ * @date 15.10.2021
+ */
+
 #pragma once
 
 #include <openssl/evp.h>

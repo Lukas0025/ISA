@@ -1,8 +1,10 @@
 /**
- * Project: packet sniffer - IPK variant ZETA
+ * Project: ICMP encrypted file transfer - ISA BUT FIT 2021
+ * file with server implementation header
  * @author Lukáš Plevač <xpleva07> (BUT FIT)
- * @date 11.11.2021
+ * @date 15.10.2021
  */
+
 #pragma once
 
 #include <pcap/pcap.h>
