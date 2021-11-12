@@ -21,7 +21,7 @@ namespace aes {
         ERR_load_crypto_strings();     
         
         /* A 256 bit key */
-        this->set_key((unsigned char *) "01234567890123456789012345678901");
+        this->set_key((unsigned char *) DEFAULT_AES_KEY);
         
         /* generate IV */
         if (!RAND_bytes(this->iv, MAX_IV_LEN)) {
