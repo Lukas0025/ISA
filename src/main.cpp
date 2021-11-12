@@ -93,10 +93,13 @@ int main(int argc, char *argv[]) {
             }
             
             if (ping_cl->send_file_enc(fp)) {
+                fclose(fp);
                 printf("transfer done\n");
                 sended = true;
                 break;
             }
+
+            fclose(fp);
         }
 
         if (!sended) {
@@ -119,6 +122,8 @@ int main(int argc, char *argv[]) {
         } catch (std::runtime_error& e) {
             fprintf(stderr, "error when try start server: %s\n", e.what());
         }
+
+        fclose(fp);
     }
 
     exit(EXIT_SUCCESS);
