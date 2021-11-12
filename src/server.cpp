@@ -5,6 +5,10 @@
  * @date 15.10.2021
  */
 
+/** Vetsina funkci pochazi z
+ * PLEVAC, Lukas. CPP Packet Sniffer. Github [online]. github.com [cit. 2021-11-12]. Dostupné z: https://github.com/Lukas0025/cpp_packet_sniffer
+ */
+
 #include "server.h"
 #include "debug.h"
 #include "aes.h"

@@ -8,6 +8,7 @@
 #include "addresses.h"
 
 namespace addresses {
+    
     addr_t *get(char *hostname) {
         addr_t hints;
 
@@ -15,6 +16,7 @@ namespace addresses {
         hints.ai_family  = AF_UNSPEC;
 
         // get addr info
+        //documenation on https://man7.org/linux/man-pages/man3/getaddrinfo.3.html
         addr_t *res;
         int     ret = getaddrinfo(hostname, NULL, &hints, &res);
 

@@ -5,6 +5,10 @@
  * @date 15.10.2021
  */
 
+ /** Vetsina funkci je inspirovana
+  * EVP Symmetric Encryption and Decryption. Openssl [online]. openssl.org [cit. 2021-11-12]. Dostupné z: https://wiki.openssl.org/index.php/EVP_Symmetric_Encryption_and_Decryption
+  */
+
 #include "aes.h"
 
 //random engine
