@@ -19,18 +19,42 @@ namespace server {
         
         if (this->interface == NULL) {
             D_PRINT("%s", errbuf);
+            throw std::runtime_error("fail open PCAP on interface");
         }
             
-        pcap_set_snaplen(this->interface, BUFSIZ);
-        pcap_set_promisc(this->interface, true);
-        pcap_set_timeout(this->interface, 1000);
-        pcap_set_datalink(this->interface, DLT_LINUX_SLL);
+        int status  = pcap_set_snaplen(this->interface, BUFSIZ);
+
+        if (status < 0) {
+		    throw std::runtime_error("fail open PCAP on interface");
+        }
+        
+        status = pcap_set_promisc(this->interface, true);
+
+        if (status < 0) {
+		    throw std::runtime_error("fail open PCAP on interface");
+        }
+        
+        status += pcap_set_timeout(this->interface, 1000);
+
+        if (status < 0) {
+		    throw std::runtime_error("fail open PCAP on interface");
+        }
+        
+        status += pcap_set_datalink(this->interface, DLT_LINUX_SLL);
+
+        if (status < 0) {
+		    throw std::runtime_error("fail open PCAP on interface");
+        }
         
         if (pcap_set_buffer_size(this->interface, PCAP_RECBUF_SIZE) != 0) {
             D_PRINT("error set buffer size");
         }
 
-        pcap_activate(this->interface);
+        status = pcap_activate(this->interface);
+
+        if (status < 0) {
+		    throw std::runtime_error("fail open PCAP on interface");
+        }
         
 
         if (pcap_datalink(this->interface) == DLT_LINUX_SLL) {
