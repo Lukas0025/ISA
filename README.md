@@ -18,7 +18,7 @@ secret  -r <file> -s <ip|hostname> [-l] [-h]
 #### server (10.0.0.1)
 
 ```sh
-secret  -l
+sudo secret -s myfile -l
 ```
 
 #### client
