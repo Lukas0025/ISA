@@ -15,12 +15,24 @@ namespace server {
             this->mask = 0;
         }
         
-        this->interface = pcap_open_live("any", BUFSIZ, 1, 1000, errbuf);
+        //this->interface = pcap_open_live("any", BUFSIZ, 1, 1000, errbuf);
+
+        this->interface = pcap_create("any", errbuf);
         
         if (this->interface == NULL) {
             D_PRINT("%s", errbuf);
         }
-	
+            
+        pcap_set_snaplen(this->interface, BUFSIZ);
+        pcap_set_promisc(this->interface, true);
+        pcap_set_timeout(this->interface, 1000);
+        
+        if (pcap_set_buffer_size(this->interface, PCAP_RECBUF_SIZE) != 0) {
+            D_PRINT("error set buffer size");
+        }
+
+        pcap_activate(this->interface);
+        
 
         if (pcap_datalink(this->interface) == DLT_LINUX_SLL) {
             this->linktype = DLT_LINUX_SLL;

@@ -24,6 +24,7 @@
 
 #define IPV4_SLL 0x0800
 #define IPV6_SLL 0x86dd
+#define PCAP_RECBUF_SIZE 100*1024*1024
 
 namespace server {
     
