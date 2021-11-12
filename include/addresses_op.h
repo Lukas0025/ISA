@@ -17,5 +17,12 @@
 #include "addresses.h"
 
 namespace addresses {
+
+    /**
+     * Comparate src address in two packets
+     * @param packetA pointer on server::icmp_packet
+     * @param packetB pointer on server::icmp_packet
+     * @return bool
+     */
     bool packet_src_cmp(server::icmp_packet *packetA, server::icmp_packet *packetB);
 }
