@@ -4,11 +4,9 @@
 #include "addresses_op.h"
 
 namespace server {
-    server::server(addresses::addr_t* address_list) {
+    server::server() {
         char errbuf[PCAP_ERRBUF_SIZE];
         struct bpf_program fp;		/* compilled filter */
-
-        this->address_list = address_list;
         
         if (pcap_lookupnet("any", &this->net, &this->mask, errbuf) == -1) {
             this->net = 0;
@@ -168,10 +166,6 @@ namespace server {
         while (true) {
 
             auto packet = this->sniff();
-
-            if (!addresses::packet_addr_in(packet, this->address_list)) {
-                continue;
-            }
 
             if (packet.seq == 0 && packet.body_len > 10) {
                 auto header = (ping::icmp_enc_transf_hdr *) packet.body;

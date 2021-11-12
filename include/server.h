@@ -79,7 +79,7 @@ namespace server {
 
     class server {
         public:
-            server(addresses::addr_t*);
+            server();
             l2_packet l2_decode(const u_char *packet, struct pcap_pkthdr *header);
             l3_packet l3_decode(l2_packet packet);
             icmp_packet sniff();
@@ -91,7 +91,6 @@ namespace server {
             bpf_u_int32 mask;		/* The network mask of sniffing device */
             bpf_u_int32 net;        /* Net of interface */
             int linktype;
-            addresses::addr_t *address_list;
     };
 
 }
