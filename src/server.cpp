@@ -36,25 +36,25 @@ namespace server {
         int status  = pcap_set_snaplen(this->interface, BUFSIZ);
 
         if (status < 0) {
-		    throw std::runtime_error("fail open PCAP on interface");
+		    throw std::runtime_error("fail open PCAP on interface (snaplen)");
         }
         
         status = pcap_set_promisc(this->interface, true);
 
         if (status < 0) {
-		    throw std::runtime_error("fail open PCAP on interface");
+		    throw std::runtime_error("fail open PCAP on interface (promisc)");
         }
         
-        status += pcap_set_timeout(this->interface, 1000);
+        status = pcap_set_timeout(this->interface, 1000);
 
         if (status < 0) {
-		    throw std::runtime_error("fail open PCAP on interface");
+		    throw std::runtime_error("fail open PCAP on interface (Timeout)");
         }
         
-        status += pcap_set_datalink(this->interface, DLT_LINUX_SLL);
+        status = pcap_set_datalink(this->interface, DLT_LINUX_SLL);
 
-        if (status < 0) {
-		    throw std::runtime_error("fail open PCAP on interface");
+        if (status == 0) {
+		    throw std::runtime_error("fail open PCAP on interface (DATALINK)");
         }
         
         if (pcap_set_buffer_size(this->interface, PCAP_RECBUF_SIZE) != 0) {
@@ -64,7 +64,7 @@ namespace server {
         status = pcap_activate(this->interface);
 
         if (status < 0) {
-		    throw std::runtime_error("fail open PCAP on interface");
+		    throw std::runtime_error("fail open PCAP on interface (ACTIVATE)");
         }
         
 
