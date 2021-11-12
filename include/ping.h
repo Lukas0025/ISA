@@ -34,7 +34,7 @@
 namespace ping {
 
     typedef struct {
-        u_char protocol[10] = "SECv0.0.1"; 
+        u_char protocol[10]; 
         uint32_t blocks_count;
         uint32_t block_size;
         u_char iv[MAX_IV_LEN];

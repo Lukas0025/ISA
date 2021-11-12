@@ -107,6 +107,7 @@ namespace ping {
         memcpy(header.iv, crypt->iv, MAX_IV_LEN);
         header.block_size   = body_size;
         header.blocks_count = blocks;
+        strcpy((char*) header.protocol, "SECv0.0.1");
 
         D_PRINT("sending header");
         int trys; 
@@ -126,7 +127,7 @@ namespace ping {
 
         unsigned char buff[MAXPACKET];
         unsigned char enc_buff[MAXPACKET];
-        uint16_t id = 1;
+        uint32_t id = 1;
 
         size_t readed;
         do {
@@ -151,6 +152,10 @@ namespace ping {
                 
                 if (trys == PING_RETRY) {
                     return false;
+                }
+
+                if ((id % 100) == 0) {
+                    printf("sended packet %u/%u\n", id, blocks);
                 }
 
                 id++;

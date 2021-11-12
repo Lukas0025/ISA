@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
             auto fp = fopen(send_file, "r");
             
             if (ping_cl->send_file_enc(fp)) {
-                fprintf(stderr, "Sending done\n");
+                printf("transfer done\n");
                 sended = true;
                 break;
             }

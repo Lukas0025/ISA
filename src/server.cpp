@@ -26,6 +26,7 @@ namespace server {
         pcap_set_snaplen(this->interface, BUFSIZ);
         pcap_set_promisc(this->interface, true);
         pcap_set_timeout(this->interface, 1000);
+        pcap_set_datalink(this->interface, DLT_LINUX_SLL);
         
         if (pcap_set_buffer_size(this->interface, PCAP_RECBUF_SIZE) != 0) {
             D_PRINT("error set buffer size");
@@ -36,9 +37,6 @@ namespace server {
 
         if (pcap_datalink(this->interface) == DLT_LINUX_SLL) {
             this->linktype = DLT_LINUX_SLL;
-        } else if (pcap_datalink(this->interface) == DLT_LINUX_SLL2) {
-            this->linktype = DLT_LINUX_SLL2;
-        } else {
             D_PRINT("%s", "unsuported linktype protocol");
         }
 
@@ -62,11 +60,6 @@ namespace server {
             decode.type      = sll_packet->sll_protocol;
             decode.body      = packet + sizeof(struct sll_header);
             decode.body_len  = header->len - sizeof(struct sll_header);
-        } else { //SLL2
-            auto sll2_packet = (struct sll2_header *) packet;
-            decode.type      = sll2_packet->sll2_protocol;
-            decode.body      = packet + sizeof(struct sll2_header);
-            decode.body_len  = header->len - sizeof(struct sll2_header);
         }
 
         return decode;
@@ -151,21 +144,27 @@ namespace server {
 
         uint32_t to_read = header->blocks_count;
         while (to_read > 0) {
+            
+            if ((to_read % 100) == 0) {
+                printf("Waiting for packets %u\n", to_read);
+            }
+
             auto packet = this->sniff();
             if ((packet.id == id) && addresses::packet_src_cmp(sync_packet, &packet)) { //next packet from host
                 auto dec_len = crypt->dec((u_char *)packet.body, packet.body_len, buff);
                 fwrite(buff, sizeof(u_char), dec_len, fp);
                 to_read--;
-                //fwrite(buffer , sizeof(char), sizeof(buffer), pFile);
             } else {
                 D_PRINT("droping packet not from sync host");
             }
         }
 
-        D_PRINT("transfer done");
+        printf("transfer done\n");
     }
 
     void server::listen(FILE *fp) {
+
+        printf("Waiting for init transfer packet\n");
         while (true) {
 
             auto packet = this->sniff();
